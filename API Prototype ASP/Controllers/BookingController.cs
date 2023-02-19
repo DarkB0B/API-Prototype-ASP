@@ -1,15 +1,35 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using API_Prototype_ASP.Models;
+using API_Prototype_ASP.Controllers;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
 namespace API_Prototype_ASP.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class BookingController : ControllerBase
     {
+        private UserModel GetCurrentUser()
+        {
+            var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
+            if (identity != null)
+            {
+                var userClaims = identity.Claims;
+                return new UserModel
+                {
+                    Username = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+                    Name = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value,
+                    Role = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
+                };
+            }
+
+            return null;
+        }
+
         private readonly ApiContext _context;
         public BookingController(ApiContext context)
         {
@@ -51,6 +71,19 @@ namespace API_Prototype_ASP.Controllers
         {
             return new JsonResult(_context.Reservations.ToList());
         }
+        //Get rooms reserved for specific user 
+        [HttpGet("my")]
+        [Authorize]
+        public JsonResult GetUserReservations()
+        {
+            var currentuser = GetCurrentUser();
+            var reservations = _context.Reservations.Where(r => r.ClientName == currentuser.Name).ToList();
+            if (reservations.Count == 0)
+            {
+                return new JsonResult("No reservations found for this user");
+            }
+            return new JsonResult(reservations);
+        }
         //Get all free rooms on given date
         [AllowAnonymous]
         [HttpGet("free/{date}")]
@@ -67,6 +100,7 @@ namespace API_Prototype_ASP.Controllers
             }
             return new JsonResult(freeRooms);
         }
+
 
 
     }

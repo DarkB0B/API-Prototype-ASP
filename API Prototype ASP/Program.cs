@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using API_Prototype_ASP.Models;
 using API_Prototype_ASP.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -56,3 +59,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+

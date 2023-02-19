@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API_Prototype_ASP.Models;
@@ -14,12 +15,16 @@ namespace API_Prototype_ASP.Controllers
     public class LoginController : ControllerBase
     {
         private IConfiguration _config;
-
-        public LoginController(IConfiguration config)
+        private readonly ApiContext _context;
+        public LoginController(IConfiguration config, ApiContext context)
         {
             _config = config;
+            _context = context;
         }
 
+       
+       
+        
         [AllowAnonymous]
         [HttpPost]
         public IActionResult Login([FromBody] UserLogin userLogin)
@@ -36,13 +41,15 @@ namespace API_Prototype_ASP.Controllers
 
         private UserModel Authenticate(UserLogin user)//need to go back here later
         {
-            var currentUser = UserConstants.User.FirstOrDefault(u => u.Username.ToLower() == user.Username.ToLower() && u.Password == user.Password);
+            var currentUser = _context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).FirstOrDefault();
             if (currentUser != null)
             {
                 return currentUser;
             }
 
             return null;
+
+
         }
 
         private string Generate(UserModel user)
@@ -57,11 +64,12 @@ namespace API_Prototype_ASP.Controllers
                 new Claim(ClaimTypes.Role, user.Role)
             };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-              _config["Jwt:Audience"],
-              claims,
-              expires: DateTime.Now.AddMinutes(15),
-              signingCredentials: credentials);
+                _config["Jwt:Audience"],
+                claims,
+                expires: DateTime.Now.AddMinutes(15),
+                signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
+
