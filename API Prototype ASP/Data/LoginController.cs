@@ -36,7 +36,7 @@ namespace API_Prototype_ASP.Data
 
         private UserModel Authenticate(UserLogin user)//need to go back here later
         {
-            var currentUser = UserConstants.Users.FirstOrDefault(u => u.Username.ToLower() == user.Username.ToLower() && u.Password == user.Password);
+            var currentUser = UserConstants.User.FirstOrDefault(u => u.Username.ToLower() == user.Username.ToLower() && u.Password == user.Password);
             if (currentUser != null)
             {
                 return currentUser;
@@ -53,6 +53,7 @@ namespace API_Prototype_ASP.Data
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
+                new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role)
             };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
