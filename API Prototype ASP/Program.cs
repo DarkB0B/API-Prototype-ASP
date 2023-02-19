@@ -1,14 +1,12 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using API_Prototype_ASP.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-
-
+using API_Prototype_ASP.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 

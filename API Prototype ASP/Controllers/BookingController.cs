@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using API_Prototype_ASP.Models;
-using API_Prototype_ASP.Data;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_Prototype_ASP.Controllers
 {
@@ -16,10 +16,11 @@ namespace API_Prototype_ASP.Controllers
             _context = context;
         }
         // Create
+        [AllowAnonymous]
         [HttpPost]
         public JsonResult Create(Reservation reservation)
         {
-            if (reservation == null || reservation.RoomNumber == 0 || reservation.RoomNumber < 5 || reservation.ClientName == null || reservation.StartDate == null || reservation.EndDate == null || reservation.StartDate > reservation.EndDate || reservation.StartDate > DateTime.Now)
+            if (reservation == null || reservation.RoomNumber == 0 || reservation.RoomNumber > 5 || reservation.ClientName == null || reservation.StartDate == null || reservation.EndDate == null || reservation.StartDate > reservation.EndDate || reservation.StartDate < DateTime.Now)
             {
                 return new JsonResult("Invalid reservation");
             }
@@ -45,11 +46,13 @@ namespace API_Prototype_ASP.Controllers
         }
         //Get all reservations
         [HttpGet]
+        [Authorize]
         public JsonResult GetAll()
         {
             return new JsonResult(_context.Reservations.ToList());
         }
         //Get all free rooms on given date
+        [AllowAnonymous]
         [HttpGet("free/{date}")]
         public JsonResult GetFreeRooms(DateTime date)
         {

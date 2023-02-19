@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace API_Prototype_ASP.Data
+namespace API_Prototype_ASP.Controllers
 
 
 {
@@ -16,5 +16,5 @@ namespace API_Prototype_ASP.Data
         }
     }
 
-    
+
 }
