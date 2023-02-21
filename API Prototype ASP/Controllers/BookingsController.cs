@@ -11,7 +11,7 @@ namespace API_Prototype_ASP.Controllers
     
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingController : ControllerBase
+    public class BookingsController : ControllerBase
     {
         private UserModel GetCurrentUser()
         {
@@ -31,16 +31,19 @@ namespace API_Prototype_ASP.Controllers
         }
 
         private readonly ApiContext _context;
-        public BookingController(ApiContext context)
+        public BookingsController(ApiContext context)
         {
             _context = context;
         }
+        
         // Create
-        [HttpPost("book/{roomno}/{startDate}/{endDate}")]
+        [HttpPost("book/")]
         [Authorize]
         public JsonResult Create(int roomno, DateTime startDate, DateTime endDate)
         {
+            var currentuser = GetCurrentUser();
             Reservation reservation = new Reservation();
+            reservation.ClientName = currentuser.Name;
             reservation.RoomNumber = roomno;
             reservation.StartDate = startDate;
             reservation.EndDate = endDate;
@@ -49,7 +52,6 @@ namespace API_Prototype_ASP.Controllers
             {
                 return new JsonResult("Invalid reservation");
             }
-            var currentuser = GetCurrentUser();
             var reservationsForThisRoom = _context.Reservations.Where(r => (r.RoomNumber == reservation.RoomNumber) && (reservation.StartDate >= DateTime.Now)).ToList();
             foreach (var res in reservationsForThisRoom)
             {
@@ -69,19 +71,17 @@ namespace API_Prototype_ASP.Controllers
                 return new JsonResult(Ok(reservation));
 
         }
-        //Get all reservations
-        [HttpGet]
-        [Authorize]
-        public JsonResult GetAll()
-        {
-            return new JsonResult(_context.Reservations.ToList());
-        }
+       
         //Get rooms reserved for specific user 
-        [HttpGet("my")]
+        [HttpGet()]
         [Authorize]
         public JsonResult GetUserReservations()
         {
             var currentuser = GetCurrentUser();
+            if(currentuser.Role == "Administrator")
+            {
+                return new JsonResult(_context.Reservations.ToList());
+            }
             var reservations = _context.Reservations.Where(r => r.ClientName == currentuser.Name).ToList();
             if (reservations.Count == 0)
             {
@@ -89,24 +89,9 @@ namespace API_Prototype_ASP.Controllers
             }
             return new JsonResult(reservations);
         }
-        //Get all free rooms on given date
-        [AllowAnonymous]
-        [HttpGet("free/{date}")]
-        public JsonResult GetFreeRooms(DateTime date)
-        {
-            var reservations = _context.Reservations.Where(r => r.StartDate <= date && r.EndDate >= date).ToList();
-            var freeRooms = new List<int>();
-            for (int i = 1; i <= 4; i++)
-            {
-                if (!reservations.Any(r => r.RoomNumber == i))
-                {
-                    freeRooms.Add(i);
-                }
-            }
-            return new JsonResult(freeRooms);
-        }
+       
         //Get list of reservations for room
-        [HttpGet("room/{roomno}")]
+        [HttpGet("for")]
         [Authorize]
         public JsonResult GetRoomReservations(int roomno)
         {
@@ -118,7 +103,7 @@ namespace API_Prototype_ASP.Controllers
             return new JsonResult(reservations);
         }
         //Get list of reservations for time period 
-        [HttpGet("period/{startDate}/{endDate}")]
+        [HttpGet("period")]
         [Authorize]
         public JsonResult GetPeriodReservations(DateTime startDate, DateTime endDate)
         {

@@ -21,7 +21,7 @@ namespace API_Prototype_ASP.Controllers
 
             if (_context.Users.Any(u => u.Username == user.Username))
             {
-                return BadRequest("Username already exists");
+                return BadRequest("Username is already taken");
             }
             user.Id = _context.Users.Count() + 1;
             _context.Users.Add(user);
