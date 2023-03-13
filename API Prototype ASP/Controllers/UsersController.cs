@@ -61,13 +61,17 @@ namespace API_Prototype_ASP.Controllers
 
             if(thisUser.Password != data.currentPassword)
             {
+                if (data.newUsername == null && data.newPassword == null && data.newName == null)
+                {
+                    return BadRequest("No changes were made");
+                }
                 if (data.newUsername != null)
                 {
                     currentUser.Username = data.newUsername;
                     result += "username ";
                     counter++;
-                }
-                else if (data.newPassword != null)
+                } 
+                if (data.newPassword != null)
                 {
                     currentUser.Password = data.newPassword;
                     if (counter != 0)
@@ -77,7 +81,7 @@ namespace API_Prototype_ASP.Controllers
                     result += "password ";
                     counter++;
                 }
-                else if (data.newName != null)
+                if (data.newName != null)
                 {
                     currentUser.Name = data.newName;
                     if (counter != 0)
@@ -87,10 +91,7 @@ namespace API_Prototype_ASP.Controllers
                     result += "Name";
                     counter++;
                 }
-                else
-                {
-                    return BadRequest("No changes were made");
-                }
+                
                 
                 _context.SaveChanges();
 
